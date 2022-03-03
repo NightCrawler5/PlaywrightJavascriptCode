@@ -1,24 +1,17 @@
 const { test, expect, chromium } = require('@playwright/test');
 const fs = require("fs");
+const { default: TestBase } = require('../startup/testBase');
 let browser = "";
 var goToLink = "";
 
 class testLinks{
     constructor(){
-        var beforeExecution = fs.readFileSync("beforeExecution.json", "utf-8");
-        var links = fs.readFileSync("./data/links.json", "utf-8");
-        const afterParseBE = JSON.parse(beforeExecution);
-        const afterParseLink = JSON.parse(links);
-    
-        if(JSON.stringify(afterParseBE["link"]).match("Google")){
-            console.log("Link is : " + JSON.stringify(afterParseLink["Google"]));
-            goToLink = afterParseLink["Google"];
-            
-        }
-        else if(JSON.stringify(afterParseBE["link"]).match("Youtube")){
-            goToLink = goToLink = afterParseLink["Youtube"];
-            console.log("Link is : " + JSON.stringify(afterParseLink["Youtube"]));
-            
+        if(TestBase.App_Env == 'TEST'){
+            console.log(process.env.TEST_LINK);
+            goToLink = process.env.TEST_LINK;
+        }else if(TestBase.App_Env == 'STAGE'){
+            console.log(process.env.STAGE_LINK);
+            goToLink = process.env.STAGE_LINK;
         }
     }
 }
@@ -33,7 +26,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-    browser.close();
+    await browser.close();
 });
 
 test('basic test', async ({ page }) => {
